@@ -18,6 +18,6 @@ app.use("/api/auth", authRoutes);
 // app.use("/", (req, res) => {
 //   res.send("Welcome to my API!");
 // });
-app.listen(3005, () => {
+app.listen(3030, () => {
   console.log("Server is running on port 3005");
 });
