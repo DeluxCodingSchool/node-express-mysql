@@ -5,8 +5,9 @@
 const express = require("express");
 const db = require("../config/db");
 const Auth = require("../model/auth");
-const hashFn = require("../utils/hashFn");
+const { hashFn, comparePasswords } = require("../utils/hashFn");
 const User = require("../model/user");
+const bcrypt = require("bcryptjs");
 
 // User registration
 
@@ -77,19 +78,25 @@ exports.login = async (req, res) => {
   }
   //get user from database with email
   const user = await User.findUserByEmail(email);
+  console.log("FOUND USER:", user);
   if (user.length === 0) {
-    return res
-      .status(404)
-      .send({
-        success: false,
-        message: `User with email (${email}) does not exists`,
-      });
+    return res.status(404).send({
+      success: false,
+      message: `User with email (${email}) does not exists`,
+    });
   }
-  return res
-    .status(200)
-    .send({ success: true, message: "User logged in successfully", user });
 
-  // compare password
+  if (await comparePasswords(password, user[0].password)) {
+    return res
+      .status(200)
+      .send({ success: true, message: "User logged in successfully", user });
+  } else {
+    return res.status(400).send({
+      success: false,
+      message: `Invalid credentials. Please try again`,
+    });
+  }
+  // Generate JWT token
 };
 
 // User login
